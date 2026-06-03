@@ -13,9 +13,7 @@ from histological_cancer_analysis.constants import (
     ID_COLUMN,
     LABEL_COLUMN,
     RGB_MODE,
-    TEST_SPLIT,
-    TRAIN_SPLIT,
-    VALIDATION_SPLIT,
+    DatasetSplit,
 )
 
 ImageOutput = Image.Image | Tensor
@@ -62,9 +60,9 @@ class HistologyPatchDataset:
 
 
 def create_stratified_splits(config: SplitConfig) -> None:
-    train_csv = config.splits_dir / f"{TRAIN_SPLIT}.csv"
-    validation_csv = config.splits_dir / f"{VALIDATION_SPLIT}.csv"
-    test_csv = config.splits_dir / f"{TEST_SPLIT}.csv"
+    train_csv = config.splits_dir / f"{DatasetSplit.TRAIN}.csv"
+    validation_csv = config.splits_dir / f"{DatasetSplit.VALIDATION}.csv"
+    test_csv = config.splits_dir / f"{DatasetSplit.TEST}.csv"
     if train_csv.exists() and validation_csv.exists() and test_csv.exists():
         return
 
