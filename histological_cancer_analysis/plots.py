@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 
 import matplotlib
@@ -12,6 +13,33 @@ from matplotlib import pyplot as plt
 
 TRAIN_LOSS_COLUMNS = ("train/loss_epoch", "train/loss")
 VALIDATION_LOSS_COLUMNS = ("val/loss",)
+
+
+def save_loss_history_plots(
+    training_loss: Sequence[tuple[int, float]],
+    validation_loss: Sequence[tuple[int, float]],
+    plots_dir: Path,
+) -> list[Path]:
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    plot_paths: list[Path] = []
+    training_loss_path = _save_history_curve(
+        points=training_loss,
+        output_path=plots_dir / "training_loss.png",
+        title="Training loss",
+        ylabel="Loss",
+    )
+    validation_loss_path = _save_history_curve(
+        points=validation_loss,
+        output_path=plots_dir / "validation_loss.png",
+        title="Validation loss",
+        ylabel="Loss",
+    )
+
+    for plot_path in (training_loss_path, validation_loss_path):
+        if plot_path is not None:
+            plot_paths.append(plot_path)
+
+    return plot_paths
 
 
 def save_training_loss_plots(metrics_csv: Path, plots_dir: Path) -> list[Path]:
@@ -79,6 +107,28 @@ def _save_metric_curve(
     _, axis = plt.subplots(figsize=(7, 4))
     axis.plot(curve[x_column], curve[metric_column], marker="o", linewidth=1.5)
     axis.set_xlabel(x_column.title())
+    axis.set_ylabel(ylabel)
+    axis.set_title(title)
+    axis.grid(alpha=0.25)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    return output_path
+
+
+def _save_history_curve(
+    points: Sequence[tuple[int, float]],
+    output_path: Path,
+    title: str,
+    ylabel: str,
+) -> Path | None:
+    if not points:
+        return None
+
+    epochs, values = zip(*points, strict=True)
+    _, axis = plt.subplots(figsize=(7, 4))
+    axis.plot(epochs, values, marker="o", linewidth=1.5)
+    axis.set_xlabel("Epoch")
     axis.set_ylabel(ylabel)
     axis.set_title(title)
     axis.grid(alpha=0.25)

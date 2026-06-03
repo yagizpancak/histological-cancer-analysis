@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -33,3 +34,22 @@ def build_logger(logging_config: Any) -> Logger | bool:
 def ensure_output_dirs(*paths: str | Path) -> None:
     for path in paths:
         Path(path).mkdir(parents=True, exist_ok=True)
+
+
+def log_artifacts(logger: Any, artifact_paths: Sequence[Path]) -> None:
+    if logger is False or not artifact_paths:
+        return
+
+    if isinstance(logger, Sequence) and not isinstance(logger, str):
+        for single_logger in logger:
+            log_artifacts(single_logger, artifact_paths)
+        return
+
+    from pytorch_lightning.loggers import MLFlowLogger
+
+    if not isinstance(logger, MLFlowLogger):
+        return
+
+    for artifact_path in artifact_paths:
+        if artifact_path.exists():
+            logger.experiment.log_artifact(logger.run_id, str(artifact_path))
