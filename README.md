@@ -118,6 +118,13 @@ Configuration values can be overridden from the command line:
 uv run hca train data.batch_size=32 trainer.max_epochs=5
 ```
 
+Training writes loss curves to:
+
+```text
+plots/training_loss.png
+plots/validation_loss.png
+```
+
 ## Evaluation
 
 Evaluate a saved checkpoint on the test split:
@@ -130,6 +137,12 @@ Use a custom classification threshold:
 
 ```bash
 uv run hca evaluate checkpoint_path=checkpoints/best.ckpt threshold=0.4
+```
+
+Evaluation writes the ROC curve to:
+
+```text
+plots/roc_curve.png
 ```
 
 ## Inference
