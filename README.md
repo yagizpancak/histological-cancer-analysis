@@ -131,6 +131,9 @@ plots/training_loss.png
 plots/validation_loss.png
 ```
 
+When tracking is enabled, the run also stores the resolved configuration,
+training loss plots, and the best checkpoint as artifacts.
+
 ## Evaluation
 
 Evaluate a saved checkpoint on the test split:
@@ -150,6 +153,9 @@ Evaluation writes the ROC curve to:
 ```text
 plots/roc_curve.png
 ```
+
+The evaluation command logs test metrics, the ROC curve, and the confusion
+matrix artifact when tracking is enabled.
 
 ## Inference
 
