@@ -134,5 +134,10 @@ uv run hca evaluate checkpoint_path=checkpoints/best.ckpt threshold=0.4
 
 ## Inference
 
-Inference commands will be added after the package inference code is
-implemented.
+Run prediction for a single image patch:
+
+```bash
+uv run hca infer checkpoint_path=checkpoints/best.ckpt image_path=data/raw/train/example.tif
+```
+
+The command returns the cancer probability and the binary class label.
