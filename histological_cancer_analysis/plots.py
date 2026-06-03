@@ -18,6 +18,7 @@ VALIDATION_LOSS_COLUMNS = ("val/loss",)
 def save_loss_history_plots(
     training_loss: Sequence[tuple[int, float]],
     validation_loss: Sequence[tuple[int, float]],
+    validation_roc_auc: Sequence[tuple[int, float]],
     plots_dir: Path,
 ) -> list[Path]:
     plots_dir.mkdir(parents=True, exist_ok=True)
@@ -34,8 +35,14 @@ def save_loss_history_plots(
         title="Validation loss",
         ylabel="Loss",
     )
+    validation_roc_auc_path = _save_history_curve(
+        points=validation_roc_auc,
+        output_path=plots_dir / "validation_roc_auc.png",
+        title="Validation ROC-AUC",
+        ylabel="ROC-AUC",
+    )
 
-    for plot_path in (training_loss_path, validation_loss_path):
+    for plot_path in (training_loss_path, validation_loss_path, validation_roc_auc_path):
         if plot_path is not None:
             plot_paths.append(plot_path)
 

@@ -25,6 +25,7 @@ from histological_cancer_analysis.logging_utils import (
     build_logger,
     ensure_output_dirs,
     log_artifacts,
+    log_code_version,
 )
 from histological_cancer_analysis.models import build_model
 from histological_cancer_analysis.plots import save_loss_history_plots
@@ -47,6 +48,7 @@ def train(config: DictConfig) -> None:
     create_stratified_splits(build_split_config(config.data))
     train_loader, validation_loader = build_train_dataloaders(config)
     lightning_module, trainer, loss_history = build_training_components(config)
+    log_code_version(trainer.logger)
     trainer.fit(
         lightning_module,
         train_dataloaders=train_loader,
@@ -55,6 +57,7 @@ def train(config: DictConfig) -> None:
     plot_paths = save_loss_history_plots(
         training_loss=loss_history.training_loss,
         validation_loss=loss_history.validation_loss,
+        validation_roc_auc=loss_history.validation_roc_auc,
         plots_dir=Path(config.logging.plots_dir),
     )
     artifact_paths = collect_training_artifacts(config, trainer, plot_paths)
@@ -122,6 +125,8 @@ def build_training_components(
         max_epochs=config.trainer.max_epochs,
         precision=config.trainer.precision,
         log_every_n_steps=config.trainer.log_every_n_steps,
+        limit_train_batches=config.trainer.limit_train_batches,
+        limit_val_batches=config.trainer.limit_val_batches,
         callbacks=build_callbacks(config, loss_history),
         logger=build_logger(config.logging),
         fast_dev_run=config.trainer.fast_dev_run,

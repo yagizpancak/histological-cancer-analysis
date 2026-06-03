@@ -8,6 +8,7 @@ class LossHistoryCallback(pl.Callback):
     def __init__(self) -> None:
         self.training_loss: list[tuple[int, float]] = []
         self.validation_loss: list[tuple[int, float]] = []
+        self.validation_roc_auc: list[tuple[int, float]] = []
 
     def on_train_epoch_end(
         self,
@@ -31,6 +32,11 @@ class LossHistoryCallback(pl.Callback):
             history=self.validation_loss,
             trainer=trainer,
             metric_name="val/loss",
+        )
+        _append_metric(
+            history=self.validation_roc_auc,
+            trainer=trainer,
+            metric_name="val/roc_auc",
         )
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -53,6 +54,45 @@ def log_artifacts(logger: Any, artifact_paths: Sequence[Path]) -> None:
     for artifact_path in artifact_paths:
         if artifact_path.exists():
             logger.experiment.log_artifact(logger.run_id, str(artifact_path))
+
+
+def log_code_version(logger: Any, repository_path: Path | None = None) -> None:
+    repository_path = repository_path or Path.cwd()
+    commit_id = get_git_commit_id(repository_path)
+    if commit_id is None:
+        return
+
+    if logger is False:
+        return
+
+    if isinstance(logger, Sequence) and not isinstance(logger, str):
+        for single_logger in logger:
+            log_code_version(single_logger, repository_path)
+        return
+
+    from pytorch_lightning.loggers import MLFlowLogger
+
+    if not isinstance(logger, MLFlowLogger):
+        return
+
+    logger.experiment.set_tag(logger.run_id, "mlflow.source.git.commit", commit_id)
+    logger.experiment.set_tag(logger.run_id, "git.commit", commit_id)
+
+
+def get_git_commit_id(repository_path: Path) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repository_path,
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+
+    commit_id = result.stdout.strip()
+    return commit_id or None
 
 
 def log_metrics(logger: Any, metrics: Mapping[str, float]) -> None:
