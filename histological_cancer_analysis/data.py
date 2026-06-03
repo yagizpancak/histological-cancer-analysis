@@ -9,6 +9,15 @@ import pandas as pd
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
+from histological_cancer_analysis.constants import (
+    ID_COLUMN,
+    LABEL_COLUMN,
+    RGB_MODE,
+    TEST_SPLIT,
+    TRAIN_SPLIT,
+    VALIDATION_SPLIT,
+)
+
 ImageTransform = Callable[[Image.Image], Any]
 
 
@@ -40,10 +49,10 @@ class HistologyPatchDataset:
 
     def __getitem__(self, index: int) -> tuple[Any, int]:
         row = self.samples.iloc[index]
-        image_path = self.image_dir / f"{row['id']}.{self.image_extension}"
+        image_path = self.image_dir / f"{row[ID_COLUMN]}.{self.image_extension}"
         with Image.open(image_path) as image_file:
-            image = image_file.convert("RGB")
-        label = int(row["label"])
+            image = image_file.convert(RGB_MODE)
+        label = int(row[LABEL_COLUMN])
 
         if self.transform is not None:
             return self.transform(image), label
@@ -52,9 +61,9 @@ class HistologyPatchDataset:
 
 
 def create_stratified_splits(config: SplitConfig) -> None:
-    train_csv = config.splits_dir / "train.csv"
-    validation_csv = config.splits_dir / "validation.csv"
-    test_csv = config.splits_dir / "test.csv"
+    train_csv = config.splits_dir / f"{TRAIN_SPLIT}.csv"
+    validation_csv = config.splits_dir / f"{VALIDATION_SPLIT}.csv"
+    test_csv = config.splits_dir / f"{TEST_SPLIT}.csv"
     if train_csv.exists() and validation_csv.exists() and test_csv.exists():
         return
 
@@ -65,7 +74,7 @@ def create_stratified_splits(config: SplitConfig) -> None:
         labels,
         train_size=config.train_fraction,
         random_state=config.random_state,
-        stratify=labels["label"],
+        stratify=labels[LABEL_COLUMN],
     )
     validation_relative_fraction = config.validation_fraction / (
         config.validation_fraction + config.test_fraction
@@ -74,13 +83,13 @@ def create_stratified_splits(config: SplitConfig) -> None:
         holdout_data,
         train_size=validation_relative_fraction,
         random_state=config.random_state,
-        stratify=holdout_data["label"],
+        stratify=holdout_data[LABEL_COLUMN],
     )
 
     config.splits_dir.mkdir(parents=True, exist_ok=True)
-    train_data.sort_values("id").to_csv(train_csv, index=False)
-    validation_data.sort_values("id").to_csv(validation_csv, index=False)
-    test_data.sort_values("id").to_csv(test_csv, index=False)
+    train_data.sort_values(ID_COLUMN).to_csv(train_csv, index=False)
+    validation_data.sort_values(ID_COLUMN).to_csv(validation_csv, index=False)
+    test_data.sort_values(ID_COLUMN).to_csv(test_csv, index=False)
 
 
 def _read_labels(labels_csv: Path) -> pd.DataFrame:
@@ -89,7 +98,7 @@ def _read_labels(labels_csv: Path) -> pd.DataFrame:
         raise FileNotFoundError(msg)
 
     labels = pd.read_csv(labels_csv)
-    required_columns = {"id", "label"}
+    required_columns = {ID_COLUMN, LABEL_COLUMN}
     missing_columns = required_columns.difference(labels.columns)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))

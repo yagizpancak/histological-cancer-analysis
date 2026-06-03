@@ -1,0 +1,6 @@
+ID_COLUMN = "id"
+LABEL_COLUMN = "label"
+TRAIN_SPLIT = "train"
+VALIDATION_SPLIT = "validation"
+TEST_SPLIT = "test"
+RGB_MODE = "RGB"
