@@ -87,7 +87,36 @@ uv run pre-commit run -a
 
 ## Training
 
-Training commands will be added after the package training code is implemented.
+Place the labels and image patches at the configured paths before training:
+
+```text
+data/raw/train_labels.csv
+data/raw/train/<image_id>.tif
+```
+
+Train the default Simple CNN model:
+
+```bash
+uv run hca train
+```
+
+Train the ResNet18 model:
+
+```bash
+uv run hca train model=resnet18
+```
+
+Run a one-batch smoke training pass:
+
+```bash
+uv run hca train trainer.fast_dev_run=true
+```
+
+Configuration values can be overridden from the command line:
+
+```bash
+uv run hca train data.batch_size=32 trainer.max_epochs=5
+```
 
 ## Evaluation
 
