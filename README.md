@@ -120,8 +120,17 @@ uv run hca train data.batch_size=32 trainer.max_epochs=5
 
 ## Evaluation
 
-Evaluation commands will be added after the package evaluation code is
-implemented.
+Evaluate a saved checkpoint on the test split:
+
+```bash
+uv run hca evaluate checkpoint_path=checkpoints/best.ckpt
+```
+
+Use a custom classification threshold:
+
+```bash
+uv run hca evaluate checkpoint_path=checkpoints/best.ckpt threshold=0.4
+```
 
 ## Inference
 
