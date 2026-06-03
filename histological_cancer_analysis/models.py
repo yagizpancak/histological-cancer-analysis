@@ -37,3 +37,13 @@ def build_resnet18(pretrained: bool) -> nn.Module:
     model = resnet18(weights=weights)
     model.fc = nn.Linear(model.fc.in_features, 1)
     return model
+
+
+def build_model(name: str, dropout: float = 0.25, pretrained: bool = False) -> nn.Module:
+    if name == "simple_cnn":
+        return SimpleCNN(dropout=dropout)
+    if name == "resnet18":
+        return build_resnet18(pretrained=pretrained)
+
+    msg = f"Unsupported model name: {name}"
+    raise ValueError(msg)
