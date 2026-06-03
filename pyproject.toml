@@ -1,0 +1,7 @@
+[project]
+name = "histological-cancer-analysis"
+version = "0.1.0"
+description = "Binary classifier for detecting metastatic cancer in histopathology image patches."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
