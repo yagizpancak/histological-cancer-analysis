@@ -20,6 +20,7 @@ from histological_cancer_analysis.data import HistologyPatchDataset, create_stra
 from histological_cancer_analysis.dataloaders import create_data_loader
 from histological_cancer_analysis.lightning_module import CancerClassifier
 from histological_cancer_analysis.models import build_model
+from histological_cancer_analysis.plots import save_roc_curve_plot
 from histological_cancer_analysis.train import build_split_config
 from histological_cancer_analysis.transforms import build_image_transforms
 
@@ -34,7 +35,14 @@ def evaluate(config: DictConfig) -> dict[str, Any]:
     test_loader = build_test_dataloader(config)
     lightning_module = load_classifier_from_checkpoint(config, Path(checkpoint_path))
     probabilities, labels = predict_probabilities(lightning_module, test_loader)
-    return compute_metrics(labels, probabilities, threshold=config.threshold)
+    metrics = compute_metrics(labels, probabilities, threshold=config.threshold)
+    roc_curve_path = save_roc_curve_plot(
+        labels=labels,
+        probabilities=probabilities,
+        plots_dir=Path(config.logging.plots_dir),
+    )
+    metrics["roc_curve_path"] = str(roc_curve_path)
+    return metrics
 
 
 def build_test_dataloader(config: DictConfig) -> DataLoader:
