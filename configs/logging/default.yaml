@@ -1,4 +1,4 @@
-logger: csv
+logger: mlflow
 save_dir: artifacts/logs
 experiment_name: histological-cancer-analysis
 run_name: null

@@ -94,6 +94,12 @@ data/raw/train_labels.csv
 data/raw/train/<image_id>.tif
 ```
 
+Start the local tracking server:
+
+```bash
+uv run mlflow server --host 127.0.0.1 --port 8080
+```
+
 Train the default Simple CNN model:
 
 ```bash
