@@ -140,7 +140,7 @@ def build_callbacks(
 ) -> list[pl.Callback]:
     checkpoint_callback = ModelCheckpoint(
         dirpath=Path(config.trainer.checkpoints_dir),
-        filename="{epoch:02d}",
+        filename="best",
         monitor=config.trainer.monitor,
         mode=config.trainer.monitor_mode,
         save_top_k=1,

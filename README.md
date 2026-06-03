@@ -173,13 +173,13 @@ training plots, the Git commit ID, and the best checkpoint as artifacts.
 Evaluate a saved checkpoint on the test split:
 
 ```bash
-uv run hca evaluate checkpoint_path=checkpoints/epoch=02.ckpt
+uv run hca evaluate checkpoint_path=checkpoints/best.ckpt
 ```
 
 Use a custom classification threshold:
 
 ```bash
-uv run hca evaluate checkpoint_path=checkpoints/epoch=02.ckpt threshold=0.4
+uv run hca evaluate checkpoint_path=checkpoints/best.ckpt threshold=0.4
 ```
 
 Evaluation writes the ROC curve to:
@@ -196,7 +196,7 @@ matrix artifact when tracking is enabled.
 Run prediction for a single image patch:
 
 ```bash
-uv run hca infer checkpoint_path=checkpoints/epoch=02.ckpt image_path=data/raw/train/example.tif
+uv run hca infer checkpoint_path=checkpoints/best.ckpt image_path=data/raw/train/example.tif
 ```
 
 The command returns the cancer probability and the binary class label.
