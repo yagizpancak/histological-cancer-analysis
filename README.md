@@ -145,6 +145,12 @@ Run a one-batch smoke training pass:
 uv run hca train trainer.fast_dev_run=true
 ```
 
+Run a short real-data smoke training pass:
+
+```bash
+uv run hca train trainer.max_epochs=3 trainer.limit_train_batches=5 trainer.limit_val_batches=5
+```
+
 Configuration values can be overridden from the command line:
 
 ```bash
@@ -156,23 +162,24 @@ Training writes loss curves to:
 ```text
 plots/training_loss.png
 plots/validation_loss.png
+plots/validation_roc_auc.png
 ```
 
 When tracking is enabled, the run also stores the resolved configuration,
-training loss plots, and the best checkpoint as artifacts.
+training plots, the Git commit ID, and the best checkpoint as artifacts.
 
 ## Evaluation
 
 Evaluate a saved checkpoint on the test split:
 
 ```bash
-uv run hca evaluate checkpoint_path=checkpoints/best.ckpt
+uv run hca evaluate checkpoint_path=checkpoints/epoch=02.ckpt
 ```
 
 Use a custom classification threshold:
 
 ```bash
-uv run hca evaluate checkpoint_path=checkpoints/best.ckpt threshold=0.4
+uv run hca evaluate checkpoint_path=checkpoints/epoch=02.ckpt threshold=0.4
 ```
 
 Evaluation writes the ROC curve to:
@@ -189,7 +196,7 @@ matrix artifact when tracking is enabled.
 Run prediction for a single image patch:
 
 ```bash
-uv run hca infer checkpoint_path=checkpoints/best.ckpt image_path=data/raw/train/example.tif
+uv run hca infer checkpoint_path=checkpoints/epoch=02.ckpt image_path=data/raw/train/example.tif
 ```
 
 The command returns the cancer probability and the binary class label.
