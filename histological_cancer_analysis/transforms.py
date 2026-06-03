@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from torchvision import transforms
 
-DEFAULT_IMAGE_MEAN = (0.5, 0.5, 0.5)
-DEFAULT_IMAGE_STD = (0.5, 0.5, 0.5)
+from histological_cancer_analysis.constants import DEFAULT_IMAGE_MEAN, DEFAULT_IMAGE_STD
 
 
 def build_image_transforms(
