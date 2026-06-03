@@ -15,10 +15,16 @@ from sklearn.metrics import (
 )
 from torch.utils.data import DataLoader
 
+from histological_cancer_analysis.artifacts import save_json_artifact
 from histological_cancer_analysis.constants import DatasetSplit
 from histological_cancer_analysis.data import HistologyPatchDataset, create_stratified_splits
 from histological_cancer_analysis.dataloaders import create_data_loader
 from histological_cancer_analysis.lightning_module import CancerClassifier
+from histological_cancer_analysis.logging_utils import (
+    build_logger,
+    log_artifacts,
+    log_metrics,
+)
 from histological_cancer_analysis.models import build_model
 from histological_cancer_analysis.plots import save_roc_curve_plot
 from histological_cancer_analysis.train import build_split_config
@@ -42,6 +48,12 @@ def evaluate(config: DictConfig) -> dict[str, Any]:
         plots_dir=Path(config.logging.plots_dir),
     )
     metrics["roc_curve_path"] = str(roc_curve_path)
+    confusion_matrix_path = save_json_artifact(
+        metrics["confusion_matrix"],
+        Path(config.logging.save_dir) / "evaluation" / "confusion_matrix.json",
+    )
+    metrics["confusion_matrix_path"] = str(confusion_matrix_path)
+    log_evaluation_results(config, metrics, [roc_curve_path, confusion_matrix_path])
     return metrics
 
 
@@ -112,3 +124,22 @@ def compute_metrics(
         "f1": f1_score(labels, predictions, zero_division=0),
         "confusion_matrix": confusion_matrix(labels, predictions, labels=[0, 1]).tolist(),
     }
+
+
+def log_evaluation_results(
+    config: DictConfig,
+    metrics: dict[str, Any],
+    artifact_paths: list[Path],
+) -> None:
+    logger = build_logger(config.logging)
+    log_metrics(
+        logger,
+        {
+            "test/roc_auc": metrics["roc_auc"],
+            "test/accuracy": metrics["accuracy"],
+            "test/precision": metrics["precision"],
+            "test/recall": metrics["recall"],
+            "test/f1": metrics["f1"],
+        },
+    )
+    log_artifacts(logger, artifact_paths)
