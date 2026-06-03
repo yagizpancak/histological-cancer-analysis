@@ -221,3 +221,20 @@ __marimo__/
 
 # PyCharm
 .idea/
+
+# Project data and artifacts
+.DS_Store
+data/
+models/
+checkpoints/
+artifacts/
+mlruns/
+outputs/
+multirun/
+plots/*.png
+mlflow.db
+*.ckpt
+*.pth
+*.pt
+*.onnx
+.dvc/cache/
