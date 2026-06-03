@@ -3,11 +3,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 from PIL import Image
 from sklearn.model_selection import train_test_split
+from torch import Tensor
 
 from histological_cancer_analysis.constants import (
     ID_COLUMN,
@@ -18,7 +18,8 @@ from histological_cancer_analysis.constants import (
     VALIDATION_SPLIT,
 )
 
-ImageTransform = Callable[[Image.Image], Any]
+ImageOutput = Image.Image | Tensor
+ImageTransform = Callable[[Image.Image], ImageOutput]
 
 
 @dataclass(frozen=True)
@@ -47,7 +48,7 @@ class HistologyPatchDataset:
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, index: int) -> tuple[Any, int]:
+    def __getitem__(self, index: int) -> tuple[ImageOutput, int]:
         row = self.samples.iloc[index]
         image_path = self.image_dir / f"{row[ID_COLUMN]}.{self.image_extension}"
         with Image.open(image_path) as image_file:
