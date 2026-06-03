@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
+from PIL import Image
 from sklearn.model_selection import train_test_split
+
+ImageTransform = Callable[[Image.Image], Any]
 
 
 @dataclass(frozen=True)
@@ -15,6 +20,35 @@ class SplitConfig:
     validation_fraction: float = 0.15
     test_fraction: float = 0.15
     random_state: int = 42
+
+
+class HistologyPatchDataset:
+    def __init__(
+        self,
+        split_csv: Path,
+        image_dir: Path,
+        image_extension: str = "tif",
+        transform: ImageTransform | None = None,
+    ) -> None:
+        self.samples = _read_labels(split_csv)
+        self.image_dir = image_dir
+        self.image_extension = image_extension.lstrip(".")
+        self.transform = transform
+
+    def __len__(self) -> int:
+        return len(self.samples)
+
+    def __getitem__(self, index: int) -> tuple[Any, int]:
+        row = self.samples.iloc[index]
+        image_path = self.image_dir / f"{row['id']}.{self.image_extension}"
+        with Image.open(image_path) as image_file:
+            image = image_file.convert("RGB")
+        label = int(row["label"])
+
+        if self.transform is not None:
+            return self.transform(image), label
+
+        return image, label
 
 
 def create_stratified_splits(config: SplitConfig) -> None:
