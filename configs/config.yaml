@@ -1,0 +1,8 @@
+defaults:
+  - data: histology
+  - model: simple_cnn
+  - trainer: default
+  - logging: default
+  - _self_
+
+seed: 42

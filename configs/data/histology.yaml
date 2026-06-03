@@ -1,0 +1,11 @@
+labels_csv: data/raw/train_labels.csv
+image_dir: data/raw/train
+splits_dir: data/splits
+image_extension: tif
+image_size: 96
+batch_size: 64
+num_workers: 4
+train_fraction: 0.7
+validation_fraction: 0.15
+test_fraction: 0.15
+random_state: 42

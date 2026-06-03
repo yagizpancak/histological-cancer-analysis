@@ -1,0 +1,6 @@
+logger: csv
+save_dir: artifacts/logs
+experiment_name: histological-cancer-analysis
+run_name: null
+mlflow_tracking_uri: http://127.0.0.1:8080
+plots_dir: plots
