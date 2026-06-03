@@ -7,6 +7,7 @@ from omegaconf import DictConfig
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch.utils.data import DataLoader
 
+from histological_cancer_analysis.artifacts import save_config_snapshot
 from histological_cancer_analysis.callbacks import LossHistoryCallback
 from histological_cancer_analysis.constants import DatasetSplit, LoggerName
 from histological_cancer_analysis.data import (
@@ -46,7 +47,8 @@ def train(config: DictConfig) -> None:
         validation_loss=loss_history.validation_loss,
         plots_dir=Path(config.logging.plots_dir),
     )
-    log_artifacts(trainer.logger, plot_paths)
+    artifact_paths = collect_training_artifacts(config, trainer, plot_paths)
+    log_artifacts(trainer.logger, artifact_paths)
 
 
 def build_split_config(data_config: DictConfig) -> SplitConfig:
@@ -132,3 +134,35 @@ def build_callbacks(
     if config.logging.logger != LoggerName.NONE:
         callbacks.append(LearningRateMonitor(logging_interval="epoch"))
     return callbacks
+
+
+def collect_training_artifacts(
+    config: DictConfig,
+    trainer: pl.Trainer,
+    plot_paths: list[Path],
+) -> list[Path]:
+    artifact_dir = Path(config.logging.save_dir) / "training"
+    config_snapshot_path = save_config_snapshot(config, artifact_dir / "config.yaml")
+    artifact_paths = [config_snapshot_path, *plot_paths]
+
+    best_checkpoint_path = get_best_checkpoint_path(trainer)
+    if best_checkpoint_path is not None:
+        artifact_paths.append(best_checkpoint_path)
+
+    return artifact_paths
+
+
+def get_best_checkpoint_path(trainer: pl.Trainer) -> Path | None:
+    checkpoint_callback = getattr(trainer, "checkpoint_callback", None)
+    if not isinstance(checkpoint_callback, ModelCheckpoint):
+        return None
+
+    best_model_path = checkpoint_callback.best_model_path
+    if not best_model_path:
+        return None
+
+    checkpoint_path = Path(best_model_path)
+    if not checkpoint_path.exists():
+        return None
+
+    return checkpoint_path
