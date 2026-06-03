@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -53,3 +53,23 @@ def log_artifacts(logger: Any, artifact_paths: Sequence[Path]) -> None:
     for artifact_path in artifact_paths:
         if artifact_path.exists():
             logger.experiment.log_artifact(logger.run_id, str(artifact_path))
+
+
+def log_metrics(logger: Any, metrics: Mapping[str, float]) -> None:
+    if logger is False or not metrics:
+        return
+
+    if isinstance(logger, Sequence) and not isinstance(logger, str):
+        for single_logger in logger:
+            log_metrics(single_logger, metrics)
+        return
+
+    from pytorch_lightning.loggers import MLFlowLogger
+
+    if not isinstance(logger, MLFlowLogger):
+        return
+
+    logger.experiment.log_metrics(
+        logger.run_id,
+        {metric_name: float(metric_value) for metric_name, metric_value in metrics.items()},
+    )
