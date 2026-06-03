@@ -1,0 +1,6 @@
+[core]
+    remote = local-data
+['remote "local-data"']
+    url = /Users/yagizpancak/dvc-storage/histological-cancer-analysis/data
+['remote "local-models"']
+    url = /Users/yagizpancak/dvc-storage/histological-cancer-analysis/models

@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
+from zipfile import ZipFile
 
 import pandas as pd
 from PIL import Image
@@ -18,6 +20,7 @@ from histological_cancer_analysis.constants import (
 
 ImageOutput = Image.Image | Tensor
 ImageTransform = Callable[[Image.Image], ImageOutput]
+PLACEHOLDER_SOURCE_URL = "replace-with-google-drive-file-id"
 
 
 @dataclass(frozen=True)
@@ -91,6 +94,50 @@ def create_stratified_splits(config: SplitConfig) -> None:
     test_data.sort_values(ID_COLUMN).to_csv(test_csv, index=False)
 
 
+def download_data(data_config: Any, dvc_config: Any) -> None:
+    labels_csv = Path(data_config.labels_csv)
+    image_dir = Path(data_config.image_dir)
+    image_extension = str(data_config.image_extension).lstrip(".")
+    if _raw_data_exists(labels_csv, image_dir, image_extension):
+        return
+
+    source_url = str(dvc_config.source_url)
+    if PLACEHOLDER_SOURCE_URL in source_url:
+        msg = (
+            "Raw data is missing and dvc.source_url still uses the placeholder "
+            "Google Drive link."
+        )
+        raise FileNotFoundError(msg)
+
+    archive_path = Path(dvc_config.archive_path)
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    if not archive_path.exists():
+        import gdown
+
+        downloaded_path = gdown.download(
+            url=source_url,
+            output=str(archive_path),
+            quiet=False,
+            fuzzy=True,
+        )
+        if downloaded_path is None:
+            msg = f"Failed to download data archive from {source_url}"
+            raise RuntimeError(msg)
+
+    _extract_dataset_archive(
+        archive_path=archive_path,
+        output_dir=archive_path.parent,
+        image_dir=image_dir,
+        image_extension=image_extension,
+    )
+    if not _raw_data_exists(labels_csv, image_dir, image_extension):
+        msg = (
+            "Data archive was downloaded, but the expected files were not found: "
+            f"{labels_csv} and {image_dir}/*.{image_extension}"
+        )
+        raise FileNotFoundError(msg)
+
+
 def _read_labels(labels_csv: Path) -> pd.DataFrame:
     if not labels_csv.exists():
         msg = f"Labels file not found: {labels_csv}"
@@ -105,6 +152,28 @@ def _read_labels(labels_csv: Path) -> pd.DataFrame:
         raise ValueError(msg)
 
     return labels
+
+
+def _raw_data_exists(labels_csv: Path, image_dir: Path, image_extension: str) -> bool:
+    if not labels_csv.exists() or not image_dir.exists():
+        return False
+    return any(image_dir.glob(f"*.{image_extension}"))
+
+
+def _extract_dataset_archive(
+    archive_path: Path,
+    output_dir: Path,
+    image_dir: Path,
+    image_extension: str,
+) -> None:
+    with ZipFile(archive_path) as archive:
+        archive.extractall(output_dir)
+
+    train_archive_path = output_dir / "train.zip"
+    if train_archive_path.exists() and not any(image_dir.glob(f"*.{image_extension}")):
+        image_dir.mkdir(parents=True, exist_ok=True)
+        with ZipFile(train_archive_path) as archive:
+            archive.extractall(image_dir)
 
 
 def _validate_split_fractions(config: SplitConfig) -> None:

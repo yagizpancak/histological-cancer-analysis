@@ -22,10 +22,11 @@ probability and a binary class label:
 
 ## Dataset
 
-The project uses the Kaggle Histopathologic Cancer Detection dataset, based on
-the PatchCamelyon benchmark. The Kaggle training set contains 220,025 labeled
-image patches. The class distribution is moderately imbalanced: 130,908 negative
-samples and 89,117 positive samples.
+The project uses the
+[Kaggle Histopathologic Cancer Detection](https://www.kaggle.com/competitions/histopathologic-cancer-detection)
+dataset, based on the PatchCamelyon benchmark. The Kaggle training set contains
+220,025 labeled image patches. The class distribution is moderately imbalanced:
+130,908 negative samples and 89,117 positive samples.
 
 Raw data, generated artifacts, and trained model files should be stored outside
 Git.
@@ -84,6 +85,32 @@ uv run ruff check .
 uv run ruff format .
 uv run pre-commit run -a
 ```
+
+## Data And Models
+
+The repository has two local DVC remotes configured:
+
+- `local-data`: raw dataset storage
+- `local-models`: checkpoint and model artifact storage
+
+Pull tracked data and model artifacts when needed:
+
+```bash
+uv run dvc pull -r local-data data/raw.dvc
+uv run dvc pull -r local-models checkpoints.dvc
+```
+
+The training data is expected in this layout:
+
+```text
+data/raw/train_labels.csv
+data/raw/train/<image_id>.tif
+```
+
+Training pulls `data/raw.dvc` when it exists. If the local data is still
+missing, it downloads and extracts the configured public archive from
+`configs/dvc/default.yaml`. Inference pulls existing data and model DVC targets
+before loading the image and checkpoint.
 
 ## Training
 

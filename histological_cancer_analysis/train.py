@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 
 import pytorch_lightning as pl
+from dvc.exceptions import DvcException
+from dvc.repo import Repo
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch.utils.data import DataLoader
@@ -14,6 +17,7 @@ from histological_cancer_analysis.data import (
     HistologyPatchDataset,
     SplitConfig,
     create_stratified_splits,
+    download_data,
 )
 from histological_cancer_analysis.dataloaders import create_data_loader
 from histological_cancer_analysis.lightning_module import CancerClassifier
@@ -29,6 +33,12 @@ from histological_cancer_analysis.transforms import build_image_transforms
 
 def train(config: DictConfig) -> None:
     pl.seed_everything(config.seed, workers=True)
+    if config.dvc.enabled:
+        dvc_targets = [target for target in config.dvc.data_targets if Path(target).exists()]
+        if dvc_targets:
+            with suppress(DvcException):
+                Repo(Path.cwd()).pull(targets=dvc_targets, remote=config.dvc.data_remote)
+    download_data(config.data, config.dvc)
     ensure_output_dirs(
         config.trainer.checkpoints_dir,
         config.logging.save_dir,

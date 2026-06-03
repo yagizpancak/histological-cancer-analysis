@@ -1,5 +1,6 @@
 defaults:
   - data: histology
+  - dvc: default
   - model: simple_cnn
   - trainer: default
   - logging: default

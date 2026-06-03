@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
 import torch
+from dvc.exceptions import DvcException
+from dvc.repo import Repo
 from omegaconf import DictConfig
 from PIL import Image
 
@@ -21,6 +24,19 @@ def infer(config: DictConfig) -> dict[str, Any]:
     if image_path is None:
         msg = "Set image_path=/path/to/image.tif before running inference."
         raise ValueError(msg)
+
+    if config.dvc.enabled:
+        data_targets = [target for target in config.dvc.data_targets if Path(target).exists()]
+        if data_targets:
+            with suppress(DvcException):
+                Repo(Path.cwd()).pull(targets=data_targets, remote=config.dvc.data_remote)
+
+        model_targets = [
+            target for target in config.dvc.model_targets if Path(target).exists()
+        ]
+        if model_targets:
+            with suppress(DvcException):
+                Repo(Path.cwd()).pull(targets=model_targets, remote=config.dvc.model_remote)
 
     probability = predict_probability(config, Path(checkpoint_path), Path(image_path))
     return {
