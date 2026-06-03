@@ -145,12 +145,6 @@ Run a one-batch smoke training pass:
 uv run hca train trainer.fast_dev_run=true
 ```
 
-Run a short real-data smoke training pass:
-
-```bash
-uv run hca train trainer.max_epochs=3 trainer.limit_train_batches=5 trainer.limit_val_batches=5
-```
-
 Configuration values can be overridden from the command line:
 
 ```bash

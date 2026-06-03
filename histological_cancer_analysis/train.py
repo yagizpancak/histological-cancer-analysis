@@ -125,8 +125,6 @@ def build_training_components(
         max_epochs=config.trainer.max_epochs,
         precision=config.trainer.precision,
         log_every_n_steps=config.trainer.log_every_n_steps,
-        limit_train_batches=config.trainer.limit_train_batches,
-        limit_val_batches=config.trainer.limit_val_batches,
         callbacks=build_callbacks(config, loss_history),
         logger=build_logger(config.logging),
         fast_dev_run=config.trainer.fast_dev_run,
@@ -144,6 +142,7 @@ def build_callbacks(
         monitor=config.trainer.monitor,
         mode=config.trainer.monitor_mode,
         save_top_k=1,
+        enable_version_counter=False,
     )
     callbacks: list[pl.Callback] = [checkpoint_callback, loss_history]
     if config.logging.logger != LoggerName.NONE:

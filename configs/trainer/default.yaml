@@ -3,8 +3,6 @@ devices: auto
 max_epochs: 10
 precision: 32
 log_every_n_steps: 20
-limit_train_batches: 1.0
-limit_val_batches: 1.0
 checkpoints_dir: checkpoints
 monitor: val/roc_auc
 monitor_mode: max
