@@ -13,3 +13,14 @@ class DatasetSplit(StrEnum):
     TRAIN = "train"
     VALIDATION = "validation"
     TEST = "test"
+
+
+class LoggerName(StrEnum):
+    NONE = "none"
+    CSV = "csv"
+    MLFLOW = "mlflow"
+
+
+class ModelName(StrEnum):
+    SIMPLE_CNN = "simple_cnn"
+    RESNET18 = "resnet18"

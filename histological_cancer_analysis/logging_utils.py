@@ -5,17 +5,19 @@ from typing import Any
 
 from pytorch_lightning.loggers import CSVLogger, Logger
 
+from histological_cancer_analysis.constants import LoggerName
+
 
 def build_logger(logging_config: Any) -> Logger | bool:
     logger_name = str(logging_config.logger).lower()
-    if logger_name == "none":
+    if logger_name == LoggerName.NONE:
         return False
-    if logger_name == "csv":
+    if logger_name == LoggerName.CSV:
         return CSVLogger(
             save_dir=str(logging_config.save_dir),
             name=str(logging_config.experiment_name),
         )
-    if logger_name == "mlflow":
+    if logger_name == LoggerName.MLFLOW:
         from pytorch_lightning.loggers import MLFlowLogger
 
         return MLFlowLogger(

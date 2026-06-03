@@ -24,10 +24,10 @@ ImageTransform = Callable[[Image.Image], ImageOutput]
 class SplitConfig:
     labels_csv: Path
     splits_dir: Path
-    train_fraction: float = 0.7
-    validation_fraction: float = 0.15
-    test_fraction: float = 0.15
-    random_state: int = 42
+    train_fraction: float
+    validation_fraction: float
+    test_fraction: float
+    random_state: int
 
 
 class HistologyPatchDataset:
@@ -35,7 +35,7 @@ class HistologyPatchDataset:
         self,
         split_csv: Path,
         image_dir: Path,
-        image_extension: str = "tif",
+        image_extension: str,
         transform: ImageTransform | None = None,
     ) -> None:
         self.samples = _read_labels(split_csv)

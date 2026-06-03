@@ -7,7 +7,7 @@ from omegaconf import DictConfig
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch.utils.data import DataLoader
 
-from histological_cancer_analysis.constants import DatasetSplit
+from histological_cancer_analysis.constants import DatasetSplit, LoggerName
 from histological_cancer_analysis.data import (
     HistologyPatchDataset,
     SplitConfig,
@@ -111,6 +111,6 @@ def build_callbacks(config: DictConfig) -> list[pl.Callback]:
         save_top_k=1,
     )
     callbacks: list[pl.Callback] = [checkpoint_callback]
-    if config.logging.logger != "none":
+    if config.logging.logger != LoggerName.NONE:
         callbacks.append(LearningRateMonitor(logging_interval="epoch"))
     return callbacks
