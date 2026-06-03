@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 
 import fire
 from hydra import compose, initialize_config_module
 from omegaconf import DictConfig
 
+from histological_cancer_analysis.evaluate import evaluate as run_evaluate
 from histological_cancer_analysis.train import train as run_train
 
 CONFIG_MODULE = "configs"
@@ -22,8 +24,14 @@ def train(*overrides: str) -> None:
     run_train(config)
 
 
+def evaluate(*overrides: str) -> None:
+    config = compose_config(overrides)
+    metrics = run_evaluate(config)
+    print(json.dumps(metrics, indent=2))
+
+
 def main() -> None:
-    fire.Fire({"train": train})
+    fire.Fire({"evaluate": evaluate, "train": train})
 
 
-__all__ = ["compose_config", "main", "train"]
+__all__ = ["compose_config", "evaluate", "main", "train"]
