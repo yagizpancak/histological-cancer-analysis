@@ -4,7 +4,6 @@ model_remote: local-models
 data_targets:
   - data/raw.dvc
 model_targets:
-  - checkpoints.dvc
-  - models.dvc
+  - data/checkpoints.dvc
 source_url: https://drive.google.com/file/d/1jIc-DDPGzVQOOhVJExGqBnhUQkVsro4Y/view?usp=drive_link
 archive_path: data/raw/histopathologic-cancer-detection.zip

@@ -97,7 +97,7 @@ Pull tracked data and model artifacts when needed:
 
 ```bash
 uv run dvc pull -r local-data data/raw.dvc
-uv run dvc pull -r local-models checkpoints.dvc
+uv run dvc pull -r local-models data/checkpoints.dvc
 ```
 
 The training data is expected in this layout:
