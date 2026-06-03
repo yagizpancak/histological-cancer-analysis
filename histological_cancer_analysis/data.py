@@ -20,7 +20,7 @@ from histological_cancer_analysis.constants import (
 
 ImageOutput = Image.Image | Tensor
 ImageTransform = Callable[[Image.Image], ImageOutput]
-PLACEHOLDER_SOURCE_URL = "replace-with-google-drive-file-id"
+PLACEHOLDER_SOURCE_ID = "replace-with-google-drive-file-id"
 
 
 @dataclass(frozen=True)
@@ -101,11 +101,11 @@ def download_data(data_config: Any, dvc_config: Any) -> None:
     if _raw_data_exists(labels_csv, image_dir, image_extension):
         return
 
-    source_url = str(dvc_config.source_url)
-    if PLACEHOLDER_SOURCE_URL in source_url:
+    source_id = str(dvc_config.source_id)
+    if PLACEHOLDER_SOURCE_ID in source_id:
         msg = (
-            "Raw data is missing and dvc.source_url still uses the placeholder "
-            "Google Drive link."
+            "Raw data is missing and dvc.source_id still uses the placeholder "
+            "Google Drive file ID."
         )
         raise FileNotFoundError(msg)
 
@@ -115,13 +115,12 @@ def download_data(data_config: Any, dvc_config: Any) -> None:
         import gdown
 
         downloaded_path = gdown.download(
-            url=source_url,
+            id=source_id,
             output=str(archive_path),
             quiet=False,
-            fuzzy=True,
         )
         if downloaded_path is None:
-            msg = f"Failed to download data archive from {source_url}"
+            msg = f"Failed to download data archive from Google Drive ID: {source_id}"
             raise RuntimeError(msg)
 
     _extract_dataset_archive(

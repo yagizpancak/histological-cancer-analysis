@@ -5,5 +5,5 @@ data_targets:
   - data/raw.dvc
 model_targets:
   - data/checkpoints.dvc
-source_url: https://drive.google.com/file/d/1jIc-DDPGzVQOOhVJExGqBnhUQkVsro4Y/view?usp=drive_link
+source_id: 1jIc-DDPGzVQOOhVJExGqBnhUQkVsro4Y
 archive_path: data/raw/histopathologic-cancer-detection.zip
