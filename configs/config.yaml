@@ -7,4 +7,5 @@ defaults:
 
 seed: 42
 checkpoint_path: null
+image_path: null
 threshold: 0.5
